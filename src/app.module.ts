@@ -4,11 +4,11 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { User } from './users/user.entity';
+import { User } from './user/user.entity';
 
-import { UsersService } from './users/users.service';
-import { UsersModule } from './users/users.module';
-import { UsersController } from './users/users.controller';
+import { UserService } from './user/user.service';
+import { UsersModule } from './user/user.module';
+import { UsersController } from './user/user.controller';
 import { AuthService } from './auth/auth.service';
 import { AuthController } from './auth/auth.controller';
 import { ToDoModule } from './to-do/to-do.module';
@@ -37,6 +37,6 @@ import { JwtService } from '@nestjs/jwt';
     ToDoModule,
   ],
   controllers: [AppController, UsersController, AuthController],
-  providers: [AppService, UsersService, AuthService, JwtService],
+  providers: [AppService, UserService, AuthService, JwtService],
 })
 export class AppModule {}
