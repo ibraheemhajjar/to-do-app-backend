@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { UserDto } from 'src/users/user.dto';
-import { UsersService } from 'src/users/users.service';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { UserDto } from 'src/user/user.dto';
+import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
@@ -8,20 +8,20 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersService: UsersService,
+    private readonly usersService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
 
   async signup(userDto: UserDto): Promise<any> {
     const { email, password, confirmPassword } = userDto;
+    if (password !== confirmPassword) {
+      throw new HttpException('Passwords do not match', HttpStatus.BAD_REQUEST);
+    }
     try {
-      if (password !== confirmPassword) {
-        throw new Error('passwords do not mach');
-      }
       const existUser = await this.usersService.findByEmail(email);
       if (existUser) {
-        throw new Error('user already exist');
+        throw new HttpException('Email already used', HttpStatus.BAD_REQUEST);
       }
       const hashedPassword = await bcrypt.hash(password, 12);
       const createdUser = await this.usersService.createUser({
@@ -30,7 +30,7 @@ export class AuthService {
       });
       return createdUser;
     } catch (error) {
-      throw new Error(error.message);
+      throw new HttpException(error.message, error.status);
     }
   }
 
@@ -39,14 +39,17 @@ export class AuthService {
     try {
       const existUser = await this.usersService.findByEmail(email);
       if (!existUser) {
-        throw new Error('user does not exist');
+        throw new HttpException(
+          'User email is not found',
+          HttpStatus.NOT_FOUND,
+        );
       }
       const isValidPassword = await bcrypt.compare(
         password,
         existUser.password,
       );
       if (!isValidPassword) {
-        throw new Error('invalid password');
+        throw new HttpException('Invalid password', HttpStatus.UNAUTHORIZED);
       }
       const payload = { sub: existUser.id, email: existUser.email };
       return {
@@ -56,18 +59,7 @@ export class AuthService {
         }),
       };
     } catch (error) {
-      throw new Error(error.message);
+      throw new HttpException(error.message, error.status);
     }
   }
-
-  // async validateUser(email: string, password: string): Promise<User | null> {
-  //   const user = await this.userService.findByEmail(email);
-  //   if (user) {
-  //     const isValidPassword = await bcrypt.compare(password, user.password);
-  //     if (isValidPassword) {
-  //       return user;
-  //     }
-  //   }
-  //   return null;
-  // }
 }
