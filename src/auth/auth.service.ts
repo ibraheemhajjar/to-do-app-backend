@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { UserDto } from 'src/user/user.dto';
+import { UserSignupDto, UserSigninDto } from 'src/user/user.dto';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -13,8 +13,8 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async signup(userDto: UserDto): Promise<any> {
-    const { email, password, confirmPassword } = userDto;
+  async signup(userSignupDto: UserSignupDto): Promise<any> {
+    const { email, password, confirmPassword } = userSignupDto;
     if (password !== confirmPassword) {
       throw new HttpException('Passwords do not match', HttpStatus.BAD_REQUEST);
     }
@@ -34,8 +34,8 @@ export class AuthService {
     }
   }
 
-  async signin(userDto: UserDto): Promise<any> {
-    const { email, password } = userDto;
+  async signin(userSigninDto: UserSigninDto): Promise<any> {
+    const { email, password } = userSigninDto;
     try {
       const existUser = await this.usersService.findByEmail(email);
       if (!existUser) {

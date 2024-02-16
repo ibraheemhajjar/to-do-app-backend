@@ -25,14 +25,13 @@ export class ResponseInterceptor implements NestInterceptor {
     const ctx = context.switchToHttp();
     const response = ctx.getResponse();
 
-    const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
-    const errorMessage =
-      exception instanceof HttpException
-        ? exception.message
-        : 'Internal Server Error';
+    let status = HttpStatus.INTERNAL_SERVER_ERROR;
+    let errorMessage: string | object = 'Internal Server Error';
+
+    if (exception instanceof HttpException) {
+      status = exception.getStatus();
+      errorMessage = exception.getResponse();
+    }
 
     response.status(status).json({
       executedSuccessfully: false,
