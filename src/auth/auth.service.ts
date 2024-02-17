@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { UserSignupDto, UserSigninDto } from 'src/user/user.dto';
+import { UserSigninDto } from 'src/user/dto/user.signin-dto';
+import { UserSignupDto } from 'src/user/dto/user.signup-dto';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -27,6 +28,7 @@ export class AuthService {
       const createdUser = await this.usersService.createUser({
         email,
         password: hashedPassword,
+        confirmPassword,
       });
       return createdUser;
     } catch (error) {
