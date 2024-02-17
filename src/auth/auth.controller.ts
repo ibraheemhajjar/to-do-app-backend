@@ -28,7 +28,7 @@ export class AuthController {
     return this.authService.signup(userSignupDto);
   }
 
-  // --------------------------------------------User signup endpoint-----------------------------------------------
+  // --------------------------------------------User signin endpoint-----------------------------------------------
   // Start of Swagger Decorators
   @ApiOperation({ summary: 'User signin' })
   @ApiBody({
@@ -37,8 +37,8 @@ export class AuthController {
   })
   @ApiResponse({
     status: 200,
-    description: 'user signed in',
-    type: 'access token',
+    description: 'user access token',
+    type: 'string token',
   })
   // End of Swagger Decorators
   @HttpCode(200)
