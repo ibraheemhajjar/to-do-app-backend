@@ -30,6 +30,7 @@ export class AuthService {
         password: hashedPassword,
         confirmPassword,
       });
+      delete createdUser.password;
       return createdUser;
     } catch (error) {
       throw new HttpException(error.message, error.status);
