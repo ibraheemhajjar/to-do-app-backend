@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateTodoDto } from './dto/to-do.create-dto';
@@ -14,30 +18,40 @@ export class TodoService {
     private userService: UserService,
   ) {}
 
-  async create(createTodoDto: CreateTodoDto): Promise<Todo> {
-    const user = await this.userService.findById(createTodoDto.userId);
-    delete user.password;
-    delete createTodoDto.userId;
+  async create(createTodoDto: CreateTodoDto, userId: number): Promise<Todo> {
+    const user = await this.userService.findById(userId);
     const todo = this.todoRepository.create(createTodoDto);
     todo.user = user;
     return await this.todoRepository.save(todo);
   }
 
-  async findAll(): Promise<Todo[]> {
-    return await this.todoRepository.find();
+  async findAll(userId: number): Promise<Todo[]> {
+    return await this.todoRepository.find({ where: { user: { id: userId } } });
   }
 
-  async findOne(id: number): Promise<Todo> {
-    const todo = await this.todoRepository.findOneBy({ id: id });
+  async findOne(id: number, userId: number): Promise<Todo> {
+    const todo = await this.todoRepository.findOne({
+      where: {
+        id: id,
+        user: { id: userId },
+      },
+    });
     if (!todo) {
       throw new NotFoundException('Todo is not found');
     }
     return todo;
   }
 
-  async update(id: number, updateTodoDto: UpdateTodoDto): Promise<Todo> {
-    const todo = await this.findOne(id); // Ensure the To-Do item exists
+  async update(
+    id: number,
+    updateTodoDto: UpdateTodoDto,
+    userId: number,
+  ): Promise<Todo> {
+    const todo = await this.findOne(id, userId);
 
+    if (userId !== todo.user.id) {
+      throw new UnauthorizedException('not authorized to update this to-do');
+    }
     // Update the properties:
     for (const prop in updateTodoDto) {
       if (updateTodoDto.hasOwnProperty(prop)) {
@@ -45,12 +59,14 @@ export class TodoService {
         todo[prop] = updateTodoDto[prop];
       }
     }
-
     return await this.todoRepository.save(todo);
   }
 
-  async remove(id: number): Promise<any> {
-    const result = await this.todoRepository.delete(id);
+  async remove(id: number, userId: number): Promise<any> {
+    const result = await this.todoRepository.delete({
+      id,
+      user: { id: userId },
+    });
 
     if (result.affected === 0) {
       throw new NotFoundException('Failed to delete the todo');

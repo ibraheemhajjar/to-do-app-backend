@@ -12,7 +12,4 @@ export class CreateTodoDto {
   @IsOptional()
   @IsBoolean()
   isDone?: boolean; // Default value will be 'false' if not provided
-
-  @IsNotEmpty()
-  userId: number;
 }
