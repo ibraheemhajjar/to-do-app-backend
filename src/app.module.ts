@@ -13,6 +13,9 @@ import { AuthService } from './auth/auth.service';
 import { AuthController } from './auth/auth.controller';
 import { ToDoModule } from './to-do/to-do.module';
 import { JwtService } from '@nestjs/jwt';
+import { Todo } from './to-do/todo.entity';
+import { TodoController } from './to-do/to-do.controller';
+import { TodoService } from './to-do/to-do.service';
 
 @Module({
   imports: [
@@ -26,17 +29,17 @@ import { JwtService } from '@nestjs/jwt';
         port: parseInt(configService.get('POSTGRES_PORT')),
         username: configService.get('POSTGRES_USER'),
         password: configService.get('POSTGRES_PASSWORD'),
-        entities: [User],
+        entities: [User, Todo],
         synchronize: true,
         autoLoadEntities: true,
       }),
     }),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Todo]),
     AuthModule,
     UsersModule,
     ToDoModule,
   ],
-  controllers: [AppController, UsersController, AuthController],
-  providers: [AppService, UserService, AuthService, JwtService],
+  controllers: [AppController, UsersController, AuthController, TodoController],
+  providers: [AppService, UserService, AuthService, JwtService, TodoService],
 })
 export class AppModule {}
