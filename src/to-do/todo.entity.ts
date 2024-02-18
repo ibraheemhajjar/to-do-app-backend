@@ -20,6 +20,6 @@ export class Todo {
   @ApiProperty() // for Swagger
   isDone: boolean;
 
-  @ManyToOne(() => User, (user) => user.todos, { lazy: true })
+  @ManyToOne(() => User, (user) => user.todos, { eager: true })
   user: User;
 }
