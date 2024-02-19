@@ -16,6 +16,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Todo } from './to-do/todo.entity';
 import { TodoController } from './to-do/to-do.controller';
 import { TodoService } from './to-do/to-do.service';
+import { GatewayModule } from './gateway/gateway.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { TodoService } from './to-do/to-do.service';
     AuthModule,
     UsersModule,
     ToDoModule,
+    GatewayModule,
   ],
   controllers: [AppController, UsersController, AuthController, TodoController],
   providers: [AppService, UserService, AuthService, JwtService, TodoService],
